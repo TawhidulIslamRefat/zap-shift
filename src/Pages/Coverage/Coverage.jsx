@@ -1,12 +1,23 @@
-import React from "react";
+import React, { useRef } from "react";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { useLoaderData } from "react-router";
 const Coverage = () => {
   const position = [23.685, 90.3563];
   const serviceCenters = useLoaderData();
+  const mapRef = useRef(null);
 
-  console.log(serviceCenters);
+  const handleSearch = (e) =>{
+    e.preventDefault();
+    const location = e.target.location.value;
+    const district = serviceCenters.find(c => c.district.toLowerCase().includes(location.toLowerCase()));
+    if(district){
+       const coord = [district.latitude,district.longitude];
+       console.log(district,coord);
+       mapRef.current.flyTo(coord,14);
+    }
+
+  }
   return (
     <div className="bg-white rounded-4xl p-20">
       <div>
@@ -14,15 +25,15 @@ const Coverage = () => {
           We are available in 64 districts
         </h1>
         <div className="relative mt-10 mb-20">
-          <form>
+          <form onSubmit={handleSearch}>
             <input
               type="search"
-              name="search"
+              name="location"
               id="search"
               placeholder="Search here"
               className="bg-[#F0F3F6] px-12 py-4 w-[30%] rounded-[50px]"
             />
-            <button className="text-xl font-bold bg-primary py-3 px-6 rounded-[50px] absolute top-[1px] left-91">
+            <button className="text-xl font-bold bg-primary py-3 px-6 rounded-[50px] absolute top-[1px] left-105">
               Search
             </button>
           </form>
@@ -38,6 +49,7 @@ const Coverage = () => {
             zoom={8}
             scrollWheelZoom={false}
             className="h-[800px]"
+            ref={mapRef}
           >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

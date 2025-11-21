@@ -3,23 +3,23 @@ import RootLayout from "../Layouts/RootLayout";
 import Home from "../Pages/Home/Home/Home";
 import Coverage from "../Pages/Coverage/Coverage";
 
-
-
-
-
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout></RootLayout>,
-    children:[
+    children: [
       {
-        index:true,
-        element:<Home></Home>
+        index: true,
+        element: <Home></Home>,
       },
       {
-        path:'/coverage',
-        element:<Coverage></Coverage>
+        path: "/coverage",
+        loader: async () => {
+          const res = await fetch("/serviceCenters.json");
+          return res.json();
+        },
+        element: <Coverage />,
       },
-    ]
+    ],
   },
 ]);

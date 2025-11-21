@@ -5,11 +5,11 @@ import Arrow from "../../../Components/Arrow/Arrow";
 
 const Navbar = () => {
   const links = <>
-    <li><NavLink to="">Services</NavLink></li>
-    <li><NavLink to="">Coverage</NavLink></li>
-    <li><NavLink to="">About Us</NavLink></li>
-    <li><NavLink to="">Pricing</NavLink></li>
-    <li><NavLink to="">Be a Rider</NavLink></li>
+    <li><NavLink to="/services">Services</NavLink></li>
+    <li><NavLink to="/coverage">Coverage</NavLink></li>
+    <li><NavLink to="/about-us">About Us</NavLink></li>
+    <li><NavLink to="/pricing">Pricing</NavLink></li>
+    <li><NavLink to="/rider">Be a Rider</NavLink></li>
   </>
   return (
     <div>

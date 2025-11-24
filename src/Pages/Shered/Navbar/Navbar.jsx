@@ -2,8 +2,21 @@ import React from "react";
 import Logo from "../../../Components/Logo/Logo";
 import { Link, NavLink } from "react-router";
 import Arrow from "../../../Components/Arrow/Arrow";
+import useAuth from "../../../Hooks/useAuth";
 
 const Navbar = () => {
+
+
+  const {user,logOut} = useAuth();
+
+  const handleLogout = () =>{
+    logOut()
+    .then()
+    .catch(error =>{
+      console.log(error);
+    })
+  }
+
   const links = <>
     <li><NavLink to="/services">Services</NavLink></li>
     <li><NavLink to="/coverage">Coverage</NavLink></li>
@@ -48,11 +61,14 @@ const Navbar = () => {
           </ul>
         </div>
         <div className="navbar-end space-x-2">
-          <Link className=" text-xl font-bold text-secondary py-3 px-6 outline outline-[#DADADA] rounded-xl">Sign In</Link>
-          <Link className="text-xl font-bold bg-primary py-3 px-6 rounded-xl ">Sign Up</Link>
+          {
+            user ? (<Link onClick={handleLogout} className="text-xl font-bold bg-primary py-3 px-6 rounded-xl ">LogOut</Link>) : ( <><Link to='/signin' className=" text-xl font-bold text-secondary py-3 px-6 outline outline-[#DADADA] rounded-xl">Sign In</Link>
+          <Link to='/signup' className="text-xl font-bold bg-primary py-3 px-6 rounded-xl ">Sign Up</Link>
           <div className="-ms-2">
             <Arrow ></Arrow>
-          </div>
+          </div></>)
+          }
+         
         </div>
       </div>
     </div>

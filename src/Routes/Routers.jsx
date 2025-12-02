@@ -9,6 +9,8 @@ import PrivateRoutes from "./PrivateRoutes/PrivateRoutes";
 import SendParcel from "../Pages/sendParcel/sendParcel";
 import ErrorPage from "../Components/Error/ErrorPage";
 import AboutUS from "../Pages/AboutUs/AboutUS";
+import DashboardLayout from "../Layouts/DashboardLayout";
+import MyParcels from "../Pages/Dashboard/MyParcels/MyParcels";
 
 
 export const router = createBrowserRouter([
@@ -54,6 +56,16 @@ export const router = createBrowserRouter([
       {
         path:'/signup',
         element:<SignUp></SignUp>
+      }
+    ]
+  },
+  {
+    path:'dashboard',
+    element:<PrivateRoutes><DashboardLayout></DashboardLayout></PrivateRoutes>,
+    children:[
+      {
+        path:'my-parcels',
+        element:<MyParcels></MyParcels>
       }
     ]
   }

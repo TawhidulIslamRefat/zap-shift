@@ -5,28 +5,44 @@ import Arrow from "../../../Components/Arrow/Arrow";
 import useAuth from "../../../Hooks/useAuth";
 
 const Navbar = () => {
+  const { user, logOut } = useAuth();
 
-
-  const {user,logOut} = useAuth();
-
-  const handleLogout = () =>{
+  const handleLogout = () => {
     logOut()
-    .then()
-    .catch(error =>{
-      console.log(error);
-    })
-  }
+      .then()
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
-  const links = 
-  <>
-    <li><NavLink to="/services">Services</NavLink></li>
-    <li><NavLink to="/coverage">Coverage</NavLink></li>
-    <li><NavLink to="/about-us">About Us</NavLink></li>
-    <li><NavLink to="/pricing">Pricing</NavLink></li>
-    <li><NavLink to="/rider">Be a Rider</NavLink></li>
-    {user && (<li><NavLink to="/send-parcel">Send Parcel</NavLink></li>) }
-    
-  </>
+  const links = (
+    <>
+      <li>
+        <NavLink to="/services">Services</NavLink>
+      </li>
+      <li>
+        <NavLink to="/coverage">Coverage</NavLink>
+      </li>
+      <li>
+        <NavLink to="/about-us">About Us</NavLink>
+      </li>
+      <li>
+        <NavLink to="/pricing">Pricing</NavLink>
+      </li>
+      <li>
+        <NavLink to="/rider">Be a Rider</NavLink>
+      </li>
+      {user && ( <>
+        <li>
+          <NavLink to="/send-parcel">Send Parcel</NavLink>
+        </li>
+        <li>
+          <NavLink to="/dashboard/my-parcels">My Parcels</NavLink>
+        </li>
+       </>
+      )}
+      </>
+  );
   return (
     <div>
       <div className="navbar bg-white shadow-sm  my-3 rounded-2xl py-3">
@@ -56,22 +72,65 @@ const Navbar = () => {
               {links}
             </ul>
           </div>
-          <a className="text-xl"><Logo></Logo></a>
+          <a className="text-xl">
+            <Logo></Logo>
+          </a>
         </div>
         <div className="navbar-center hidden lg:flex">
           <ul className="menu menu-horizontal px-1 space-x-3 text-[#606060] text-[16px]">
-           {links}
+            {links}
           </ul>
         </div>
         <div className="navbar-end space-x-2">
-          {
-            user ? (<Link onClick={handleLogout} className="text-xl font-bold bg-primary py-3 px-6 rounded-xl ">LogOut</Link>) : ( <><Link to='/signin' className=" text-xl font-bold text-secondary py-3 px-6 outline outline-[#DADADA] rounded-xl">Sign In</Link>
-          <Link to='/signup' className="text-xl font-bold bg-primary py-3 px-6 rounded-xl ">Sign Up</Link>
-          <div className="-ms-2">
-            <Arrow ></Arrow>
-          </div></>)
-          }
-         
+          {user && (
+            <div className="w-15 h-15 rounded-full bg-primary p-1">
+              <button
+                className=""
+                onClick={() =>
+                  document.getElementById("my_modal_2").showModal()
+                }
+              >
+                <img src={user.photoURL} alt="" />
+              </button>
+              <dialog id="my_modal_2" className="modal">
+                <div className="modal-box bg-primary">
+                  <h3 className="font-bold text-lg">{user.displayName}</h3>
+                  <p className="py-4">
+                    {user.email}
+                  </p>
+                </div>
+                <form method="dialog" className="modal-backdrop">
+                  <button>close</button>
+                </form>
+              </dialog>
+            </div>
+          )}
+          {user ? (
+            <Link
+              onClick={handleLogout}
+              className="text-xl font-bold bg-primary py-3 px-6 rounded-xl "
+            >
+              LogOut
+            </Link>
+          ) : (
+            <>
+              <Link
+                to="/signin"
+                className=" text-xl font-bold text-secondary py-3 px-6 outline outline-[#DADADA] rounded-xl"
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/signup"
+                className="text-xl font-bold bg-primary py-3 px-6 rounded-xl "
+              >
+                Sign Up
+              </Link>
+              <div className="-ms-2">
+                <Arrow></Arrow>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

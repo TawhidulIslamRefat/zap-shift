@@ -1,29 +1,77 @@
 import { useForm, useWatch } from "react-hook-form";
 import { useLoaderData } from "react-router";
+import Swal from "sweetalert2";
+import useAxiosSecure from "../../Hooks/useAxiosSecure";
+import useAuth from "../../Hooks/useAuth";
 
 const SendParcel = () => {
   const {
     register,
     handleSubmit,
     control,
-    formState: { errors },
+    // formState: { errors },
   } = useForm();
+  const {user} = useAuth();
+  const axiosSecure = useAxiosSecure();
   const serviceCenter = useLoaderData();
-  const regionsDuplicate = serviceCenter.map(c => c.region);
+  const regionsDuplicate = serviceCenter.map((c) => c.region);
   const regions = [...new Set(regionsDuplicate)];
-  const senderRegion = useWatch({ control, name:'senderRegion'});
-  const receiverRegion = useWatch({ control, name:'receiverRegion'});
+  const senderRegion = useWatch({ control, name: "senderRegion" });
+  const receiverRegion = useWatch({ control, name: "receiverRegion" });
 
-  const districtsByRegion = region =>{
-    const regionDistricts = serviceCenter.filter( c => c.region === region);
-    const districts = regionDistricts.map( d => d.district);
+  const districtsByRegion = (region) => {
+    const regionDistricts = serviceCenter.filter((c) => c.region === region);
+    const districts = regionDistricts.map((d) => d.district);
     return districts;
-  }
+  };
 
   const handleSendParcel = (data) => {
     console.log(data);
-    const sameDistrict = data.senderDistrict === data.receiverDistrict;
-    console.log(sameDistrict);
+    const isDocument = data.parcelType === "document";
+    const isSameDistrict = data.senderDistrict === data.receiverDistrict;
+    const parcelWeight = parseFloat(data.parcelWeight);
+
+    let cost = 0;
+    if (isDocument) {
+      cost = isSameDistrict ? 60 : 80;
+    } else {
+      if (parcelWeight < 3) {
+        cost = isSameDistrict ? 110 : 150;
+      } else {
+        const minCharge = isSameDistrict ? 110 : 150;
+        const extraWeight = parcelWeight - 3;
+        const extraCharge = isSameDistrict
+          ? extraWeight * 40
+          : extraWeight * 40 + 40;
+        cost = minCharge + extraCharge;
+      }
+    }
+    console.log("Cost", cost);
+    data.cost = cost;
+    Swal.fire({
+      title: "Agree with the cost?",
+      text: `You will be cost ${cost} taka`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#CAEB66",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes Agreed!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+
+        // save the data info to the database
+        axiosSecure.post('/parcels',data)
+        .then(res => {
+          console.log('after saving parcel', res.data);
+        })
+
+        // Swal.fire({
+        //   title: "Deleted!",
+        //   text: "Your file has been deleted.",
+        //   icon: "success",
+        // });
+      }
+    });
   };
   return (
     <div className="bg-white rounded-3xl py-10 px-25 mt-12">
@@ -97,6 +145,7 @@ const SendParcel = () => {
                   <input
                     type="text"
                     {...register("senderName")}
+                    defaultValue={user?.displayName}
                     placeholder="Sender Name"
                     className="w-full border border-gray-300 rounded-md p-3 focus:outline-none text-[15px]"
                   />
@@ -108,6 +157,7 @@ const SendParcel = () => {
                   <input
                     type="email"
                     {...register("senderEmail")}
+                    defaultValue={user?.email}
                     placeholder="Sender Name"
                     className="w-full border border-gray-300 rounded-md p-3 focus:outline-none text-[15px]"
                   />
@@ -122,10 +172,11 @@ const SendParcel = () => {
                     className="w-full border border-gray-300 rounded-md p-3 focus:outline-none text-[15px]"
                   >
                     <option value="">Select Region</option>
-                    {
-                      regions.map((r,i) =><option key={i} value={r}>{r}</option> )
-                    }
-                    
+                    {regions.map((r, i) => (
+                      <option key={i} value={r}>
+                        {r}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
@@ -138,10 +189,11 @@ const SendParcel = () => {
                     className="w-full border border-gray-300 rounded-md p-3 focus:outline-none text-[15px]"
                   >
                     <option value="">Select District</option>
-                    {
-                      districtsByRegion(senderRegion).map((r,i) =><option key={i} value={r}>{r}</option> )
-                    }
-                    
+                    {districtsByRegion(senderRegion).map((r, i) => (
+                      <option key={i} value={r}>
+                        {r}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -168,7 +220,6 @@ const SendParcel = () => {
                     className="w-full border border-gray-300 rounded-md p-3 focus:outline-none text-[15px]"
                   />
                 </div>
-
 
                 <div>
                   <label className="block mb-1 font-medium text-[15px]">
@@ -207,7 +258,7 @@ const SendParcel = () => {
                   </label>
                   <input
                     type="email"
-                    {...register("receiverName")}
+                    {...register("receiverEmail")}
                     placeholder="Receiver Email"
                     className="w-full border border-gray-300 rounded-md p-3 focus:outline-none text-[15px]"
                   />
@@ -222,10 +273,11 @@ const SendParcel = () => {
                     className="w-full border border-gray-300 rounded-md p-3 focus:outline-none text-[15px]"
                   >
                     <option value="">Select Region</option>
-                    {
-                      regions.map((r,i) =><option key={i} value={r}>{r}</option> )
-                    }
-                    
+                    {regions.map((r, i) => (
+                      <option key={i} value={r}>
+                        {r}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
@@ -238,10 +290,11 @@ const SendParcel = () => {
                     className="w-full border border-gray-300 rounded-md p-3 focus:outline-none text-[15px]"
                   >
                     <option value="">Select District</option>
-                    {
-                      districtsByRegion(receiverRegion).map((r,i) =><option key={i} value={r}>{r}</option> )
-                    }
-                    
+                    {districtsByRegion(receiverRegion).map((r, i) => (
+                      <option key={i} value={r}>
+                        {r}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
